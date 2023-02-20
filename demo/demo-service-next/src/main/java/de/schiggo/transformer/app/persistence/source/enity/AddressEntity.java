@@ -18,10 +18,12 @@ package de.schiggo.transformer.app.persistence.source.enity;
 
 import de.schiggo.transformer.app.persistence.source.versioning.VersionedEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity(name = "T_Address")
 public class AddressEntity extends VersionedEntity {

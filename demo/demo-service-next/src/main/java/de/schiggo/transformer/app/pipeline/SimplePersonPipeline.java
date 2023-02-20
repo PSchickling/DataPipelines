@@ -23,6 +23,7 @@ import de.schiggo.transformer.app.persistence.source.repo.AddressRepository;
 import de.schiggo.transformer.app.persistence.source.repo.PersonRepository;
 import de.schiggo.transformer.app.persistence.target.enity.PersonReportingEntity;
 import de.schiggo.transformer.app.persistence.target.repo.PersonReportingRepository;
+import de.schiggo.transformer.exceptions.StateContext;
 import de.schiggo.transformer.transformables.DataSource;
 import lombok.Builder;
 import lombok.Data;
@@ -55,26 +56,31 @@ import java.util.Optional;
 public class SimplePersonPipeline {
 
     // Source repositories
-    final PersonRepository personRepository;
-    final AddressRepository addressRepository;
+    private final PersonRepository personRepository;
+    private final AddressRepository addressRepository;
 
     // Target repository
-    final PersonReportingRepository personReportingRepository;
+    private final PersonReportingRepository personReportingRepository;
 
-    Calendar validAt = null;
+    // TODO fails for concurrency. Pass it to every function as argument to solve this
+    private Calendar validAt = null;
 
     /**
      * Executes the whole pipeline.
      */
-    public void execute() {
-        validAt = Calendar.getInstance();
+    public void execute(Calendar validAt) {
+        this.validAt = validAt;
 
+        // StateContext only necessary for ExceptionHandling
+        StateContext<Long> sc = new StateContext<>();
+
+        log.info("Initialize pipeline");
         // Pipeline to update all person-reporting
         Sink<PersonReportingEntity> sink =
                 // Load all main ids from source
                 // Here we only load ids first to prevent high memory usage. It is also possible to implement an
                 // iterator that fetches each entry with just storing the last id.
-                new DataSource<>(personRepository.findAllMainIds(validAt).iterator())
+                new DataSource<>(personRepository.findAllMainIds(validAt).iterator()).setStateContext(sc)
                         // Load entity for the given id
                         .transform(l -> personRepository.getByMainId(l, validAt))
                         // Transform person to person-reporting
@@ -88,13 +94,16 @@ public class SimplePersonPipeline {
                         // Filter out entities which did not change
                         .transform(this::currentOrNext)
                         // Write to target repository
-                        .sink(personReportingRepository::save);
+                        .sink(personReportingRepository::save)
+                        .exceptionHandling(sc, (id, e) -> log.error("Failed to process id {} with message '{}'", id, e.getMessage()));
 
+        log.info("Execute Pipeline");
         sink.execute();
 
-        // Delete entries where next=false
+        // Finalize pipeline update
+        // 1. Delete entries where next=false
         personReportingRepository.deleteWithoutNext();
-        // Set current=next and then next=false
+        // 2. Set current=next and then next=false
         personReportingRepository.nextToCurrent();
     }
 
@@ -113,6 +122,7 @@ public class SimplePersonPipeline {
      * @return Wrapper with source and target person
      */
     private SourceTargetWrapper personToPersonReporting(PersonEntity person) {
+        log.debug("Execute pipeline transformation 'personToPersonReporting'");
         int age = toAge(person.getDayOfBirth());
         PersonReportingEntity target = PersonReportingEntity.builder().age(age).mainPersonId(person.getMainId()).build();
         return SourceTargetWrapper.builder().personReporting(target).person(person).build();
@@ -149,6 +159,7 @@ public class SimplePersonPipeline {
      * @return Wrapper with changed target and maybe additional address entity
      */
     private SourceTargetWrapper addFirstAddressToPersonReporting(SourceTargetWrapper wrapper) {
+        log.debug("Execute pipeline transformation 'addFirstAddressToPersonReporting'");
         // Load person's first address from repository
         Optional<AddressEntity> optionalAddress = addressRepository.findAllByMainPersonId(wrapper.getPerson().getMainId(), validAt).stream().findFirst();
         if (optionalAddress.isPresent()) {
@@ -178,6 +189,8 @@ public class SimplePersonPipeline {
      * @return Either update or the current entity from the repository, depending on weather they had different values.
      */
     private PersonReportingEntity currentOrNext(PersonReportingEntity update) {
+        log.debug("Execute pipeline transformation 'currentOrNext'");
+
         // Load current from repository
         Optional<PersonReportingEntity> optionalCurrent = personReportingRepository.findCurrentByMainPersonId(update.getMainPersonId());
         if (optionalCurrent.isPresent()) {
@@ -186,24 +199,30 @@ public class SimplePersonPipeline {
 
             // If change detected, then proceed with the given one
             if ((current.getAge() == null && update.getAge() != null) || (current.getAge() != null && !current.getAge().equals(update.getAge()))) {
+                log.debug("Person with main id {} is changed", update.getMainPersonId());
                 return update;
             }
             if ((current.getMainAddressId() == null && update.getMainAddressId() != null) || (current.getMainAddressId() != null && !current.getMainAddressId().equals(update.getMainAddressId()))) {
+                log.debug("Person with main id {} is changed", update.getMainPersonId());
                 return update;
             }
             if ((current.getCity() == null && update.getCity() != null) || (current.getCity() != null && !current.getCity().equals(update.getCity()))) {
+                log.debug("Person with main id {} is changed", update.getMainPersonId());
                 return update;
             }
             if ((current.getZipCode() == null && update.getZipCode() != null) || (current.getZipCode() != null && !current.getZipCode().equals(update.getZipCode()))) {
+                log.debug("Person with main id {} is changed", update.getMainPersonId());
                 return update;
             }
 
             // No change detected, therefore replace with current and set next to true
+            log.debug("Person with main id {} is unchanged", update.getMainPersonId());
             current.setNext(true);
             return current;
         }
 
         // No current entry, therefore just proceed with the given one (attribute 'next' is true by default)
+        log.debug("Person with main id {} is a new entry", update.getMainPersonId());
         return update;
     }
 

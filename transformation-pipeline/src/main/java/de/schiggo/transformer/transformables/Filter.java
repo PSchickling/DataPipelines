@@ -17,6 +17,7 @@
 package de.schiggo.transformer.transformables;
 
 import de.schiggo.transformer.*;
+import de.schiggo.transformer.exceptions.ApplyFilterException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Iterator;
@@ -47,10 +48,15 @@ public class Filter<T> implements Transformable<T> {
 
     @Override
     public boolean hasNext() {
-        while (!nextIsValid() && source.hasNext()) {
-            next = source.next();
+        try {
+            while (!nextIsValid() && source.hasNext()) {
+                next = source.next();
+            }
+            return nextIsValid();
+        } catch (Exception e) {
+            next = null;
+            throw new ApplyFilterException("Applying filter failed", e);
         }
-        return nextIsValid();
     }
 
     /**

@@ -18,6 +18,7 @@ package de.schiggo.transformer.app.persistence.source.enity;
 
 import de.schiggo.transformer.app.persistence.source.versioning.VersionedEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Singular;
 import lombok.ToString;
 
@@ -25,6 +26,7 @@ import javax.persistence.*;
 import java.util.Calendar;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity(name = "T_Person")
 public class PersonEntity extends VersionedEntity {

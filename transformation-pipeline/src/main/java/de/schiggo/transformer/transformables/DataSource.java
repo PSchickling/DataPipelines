@@ -17,18 +17,29 @@
 package de.schiggo.transformer.transformables;
 
 import de.schiggo.transformer.*;
+import de.schiggo.transformer.exceptions.StateContext;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Iterator;
 
+/**
+ * The beginning of a pipeline.
+ * <br>
+ * Takes an iterator as source. Transformation can be done with {@link #transform(ApplyTransformation)}. Filtering of
+ * elements can be done with {@link #filter(ApplyFilter)} and to finish a pipeline use {@link #sink(ApplySink)}.
+ *
+ * @param <T> Type of the elements.
+ */
 @RequiredArgsConstructor
 public class DataSource<T> implements Transformable<T> {
 
     private final Iterator<T> source;
 
+    private StateContext<T> stateContext = null;
+
     @Override
     public <S> Transformation<T, S> transform(ApplyTransformation<T, S> transformer) {
-        return new Transformation<>(source, transformer);
+        return new Transformation<>(this, transformer);
     }
 
     @Override
@@ -48,6 +59,23 @@ public class DataSource<T> implements Transformable<T> {
 
     @Override
     public T next() {
-        return source.next();
+        T next = source.next();
+        if (stateContext != null) {
+            stateContext.setNext(next);
+        }
+        return next;
+    }
+
+    /**
+     * A {@link StateContext} is only required, if you want to use an {@link de.schiggo.transformer.exceptions.ExceptionHandler ExceptionHandler}).
+     *
+     * @param stateContext StateContext which will be used in the {@link de.schiggo.transformer.exceptions.ExceptionHandler ExceptionHandler}
+     *                     of the same pipeline.
+     * @return this object itself
+     * @see de.schiggo.transformer.exceptions.ExceptionHandler
+     */
+    public DataSource<T> setStateContext(StateContext<T> stateContext) {
+        this.stateContext = stateContext;
+        return this;
     }
 }

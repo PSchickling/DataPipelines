@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 class TransformationTest {
 
     @Test
-    public void test(){
+    public void test() {
     }
 
 }

@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Calendar;
+
 @RestController
 @RequestMapping("/api/test")
 @RequiredArgsConstructor
@@ -35,7 +37,8 @@ public class TestController {
 
     @GetMapping
     public Iterable<PersonReportingEntity> test() {
-        personPipeline.execute();
+        Calendar now = Calendar.getInstance();
+        personPipeline.execute(now);
         return personReportingRepository.findAll();
     }
 

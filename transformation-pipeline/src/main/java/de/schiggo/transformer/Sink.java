@@ -16,6 +16,10 @@
 
 package de.schiggo.transformer;
 
+import de.schiggo.transformer.exceptions.ErrorHandler;
+import de.schiggo.transformer.exceptions.ExceptionHandler;
+import de.schiggo.transformer.exceptions.LastEntryFailureException;
+import de.schiggo.transformer.exceptions.StateContext;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Iterator;
@@ -30,9 +34,29 @@ public class Sink<T> {
     private final Iterator<T> source;
     private final ApplySink<T> sink;
 
+    /**
+     * Executes the whole pipeline.
+     */
     public void execute() {
-        while (source.hasNext()) {
-            sink.apply(source.next());
+        try {
+            while (source.hasNext()) {
+                sink.apply(source.next());
+            }
+        } catch (LastEntryFailureException e) {
+            // This doesn't matter
         }
+    }
+
+    /**
+     * Adds an exception handler before the sink.
+     *
+     * @param stateContext     Context which you have to set in the data source. Allows to follow the state of the source.
+     * @param exceptionHandler Function, which will be applied on elements, which processing failed. Use this function
+     *                         to store failed entries to analyse or retry them later.
+     * @param <S>              The type of the elements in the data source.
+     * @return Sink with an exception handler on step before in the pipeline.
+     */
+    public <S> Sink<T> exceptionHandling(StateContext<S> stateContext, ErrorHandler<S> exceptionHandler) {
+        return new ExceptionHandler<>(source, exceptionHandler, stateContext, true).sink(sink);
     }
 }

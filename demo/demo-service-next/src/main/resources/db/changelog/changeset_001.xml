@@ -18,7 +18,7 @@
             <column name="DayOfBirth" type="DATE"/>
             <column name="ValidFrom" type="DATETIME"/>
             <column name="Deleted" type="BIT" defaultValueBoolean="false">
-                <constraints nullable="false" />
+                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -35,7 +35,7 @@
             <column name="CountryCode" type="VARCHAR(255)"/>
             <column name="ValidFrom" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP"/>
             <column name="Deleted" type="BIT" defaultValueBoolean="false">
-                <constraints nullable="false" />
+                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -44,8 +44,8 @@
             <column name="Id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PersonReporting"/>
             </column>
-            <column name="MainPersonId" type="BIGINT" />
-            <column name="MainAddressId" type="BIGINT" />
+            <column name="MainPersonId" type="BIGINT"/>
+            <column name="MainAddressId" type="BIGINT"/>
             <column name="Age" type="INT"/>
             <column name="ZipCode" type="VARCHAR(255)"/>
             <column name="City" type="VARCHAR(255)"/>
