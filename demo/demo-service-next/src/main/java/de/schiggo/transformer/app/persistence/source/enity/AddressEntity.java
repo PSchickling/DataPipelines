@@ -16,19 +16,19 @@
 
 package de.schiggo.transformer.app.persistence.source.enity;
 
+import de.schiggo.transformer.app.persistence.source.versioning.VersionedEntity;
 import lombok.Data;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.Calendar;
 
 @Data
 @Entity(name = "T_Address")
-public class AddressEntity {
+public class AddressEntity extends VersionedEntity {
 
     @Id
-    @Column(name = "mainid")
-    private Long mainId;
+    @Column(name = "addressid")
+    private Long addressId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mainpersonid")
@@ -49,11 +49,5 @@ public class AddressEntity {
 
     @Column(name = "countrycode")
     private String countryCode;
-
-    @Column(name = "validfrom")
-    private Calendar validFrom;
-
-    @Column(name = "deleted")
-    private Boolean deleted;
 
 }

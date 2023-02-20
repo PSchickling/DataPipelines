@@ -50,12 +50,18 @@
             <column name="ZipCode" type="VARCHAR(255)"/>
             <column name="City" type="VARCHAR(255)"/>
             <column name="Current" type="BIT" defaultValueBoolean="false">
-                <constraints nullable="false" />
+                <constraints nullable="false"/>
             </column>
             <column name="Next" type="BIT" defaultValueBoolean="true">
-                <constraints nullable="false" />
+                <constraints nullable="false"/>
             </column>
         </createTable>
+
+        <createView viewName="V_PersonReporting">
+            SELECT p.MainPersonId, p.MainAddressId, p.Age, p.Zipcode, p.City
+            FROM D_PersonReporting p
+            WHERE p.current
+        </createView>
 
     </changeSet>
 

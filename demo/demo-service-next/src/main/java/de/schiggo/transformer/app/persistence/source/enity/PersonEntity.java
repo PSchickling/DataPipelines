@@ -16,6 +16,7 @@
 
 package de.schiggo.transformer.app.persistence.source.enity;
 
+import de.schiggo.transformer.app.persistence.source.versioning.VersionedEntity;
 import lombok.Data;
 import lombok.Singular;
 import lombok.ToString;
@@ -26,11 +27,11 @@ import java.util.List;
 
 @Data
 @Entity(name = "T_Person")
-public class PersonEntity {
+public class PersonEntity extends VersionedEntity {
 
     @Id
-    @Column(name = "mainid")
-    private Long mainId;
+    @Column(name = "personid")
+    private Long personId;
 
     @Column(name = "firstname")
     private String firstName;
@@ -45,12 +46,5 @@ public class PersonEntity {
     @ToString.Exclude
     @Singular
     private List<AddressEntity> addresses;
-
-    @Column(name = "validfrom")
-    private Calendar validFrom;
-
-    @Column(name = "deleted")
-    private Boolean deleted;
-
 
 }
