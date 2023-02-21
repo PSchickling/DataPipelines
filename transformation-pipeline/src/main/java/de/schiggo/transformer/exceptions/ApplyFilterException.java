@@ -16,8 +16,12 @@
 
 package de.schiggo.transformer.exceptions;
 
+import de.schiggo.transformer.basics.ExceptionHandler;
+import de.schiggo.transformer.basics.Filter;
+import de.schiggo.transformer.basics.interfaces.ApplyFilter;
+
 /**
- * Thrown if the execution of {@link de.schiggo.transformer.ApplyFilter ApplyFilter} in a {@link de.schiggo.transformer.transformables.Filter Filter}
+ * Thrown if the execution of {@link ApplyFilter ApplyFilter} in a {@link Filter Filter}
  * failed.
  * <p>
  * Can be caught using {@link ExceptionHandler}.

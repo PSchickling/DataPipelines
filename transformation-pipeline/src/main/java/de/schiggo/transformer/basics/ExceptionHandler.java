@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer.exceptions;
+package de.schiggo.transformer.basics;
 
-import de.schiggo.transformer.ApplySink;
-import de.schiggo.transformer.Sink;
+import de.schiggo.transformer.basics.interfaces.ApplySink;
+import de.schiggo.transformer.basics.interfaces.ErrorHandler;
+import de.schiggo.transformer.exceptions.LastEntryFailureException;
+import de.schiggo.transformer.exceptions.PipelineFailedException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Exception handler for pipelines.
@@ -80,6 +83,10 @@ public class ExceptionHandler<T, S> implements Iterator<T> {
             // Store next for next time
             previous = stateContext.getNext();
             return next;
+        } catch (NoSuchElementException e) {
+            // No such element exceptions can be thrown, because it relates to the iterator interface.
+            // Should not be thrown, when the user ensures that hasNext() is true before calling next().
+            throw e;
         } catch (Exception e) {
             // Apply exception handling function
             errorHandler.handle(stateContext.getNext(), e);

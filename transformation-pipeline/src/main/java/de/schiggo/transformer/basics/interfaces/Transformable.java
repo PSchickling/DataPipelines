@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer;
+package de.schiggo.transformer.basics.interfaces;
+
+import de.schiggo.transformer.basics.Sink;
 
 import java.util.Iterator;
 

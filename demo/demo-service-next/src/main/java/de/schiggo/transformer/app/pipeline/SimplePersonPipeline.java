@@ -16,15 +16,15 @@
 
 package de.schiggo.transformer.app.pipeline;
 
-import de.schiggo.transformer.Sink;
 import de.schiggo.transformer.app.persistence.source.enity.AddressEntity;
 import de.schiggo.transformer.app.persistence.source.enity.PersonEntity;
 import de.schiggo.transformer.app.persistence.source.repo.AddressRepository;
 import de.schiggo.transformer.app.persistence.source.repo.PersonRepository;
 import de.schiggo.transformer.app.persistence.target.enity.PersonReportingEntity;
 import de.schiggo.transformer.app.persistence.target.repo.PersonReportingRepository;
-import de.schiggo.transformer.exceptions.StateContext;
-import de.schiggo.transformer.transformables.DataSource;
+import de.schiggo.transformer.basics.DataSource;
+import de.schiggo.transformer.basics.Sink;
+import de.schiggo.transformer.basics.StateContext;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -95,7 +95,7 @@ public class SimplePersonPipeline {
                         .transform(this::currentOrNext)
                         // Write to target repository
                         .sink(personReportingRepository::save)
-                        .exceptionHandling(sc, (id, e) -> log.error("Failed to process id {} with message '{}'", id, e.getMessage()));
+                        .exceptionHandling(sc, (id, e) -> log.error("Failed to process id {} with message '{}'", id, e.getMessage()), true);
 
         log.info("Execute Pipeline");
         sink.execute();

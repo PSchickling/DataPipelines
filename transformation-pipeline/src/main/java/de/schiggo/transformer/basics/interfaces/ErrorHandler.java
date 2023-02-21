@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer.exceptions;
+package de.schiggo.transformer.basics.interfaces;
+
+import de.schiggo.transformer.basics.DataSource;
+import de.schiggo.transformer.basics.ExceptionHandler;
 
 /**
  * Definition of functions for exception handling of {@link ExceptionHandler}.
  *
- * @param <T> Usually, the {@link de.schiggo.transformer.transformables.DataSource DataSource}-type of the pipeline.
+ * @param <T> Usually, the {@link DataSource DataSource}-type of the pipeline.
  */
 public interface ErrorHandler<T> {
     /**
@@ -27,7 +30,7 @@ public interface ErrorHandler<T> {
      * <br>
      * For example, you can use this method to store the failed element to retry or analyse it.
      *
-     * @param input The inital element from the {@link de.schiggo.transformer.transformables.DataSource DataSource}
+     * @param input The inital element from the {@link DataSource DataSource}
      *              which failed.
      * @param e     The exception which was thrown in the pipeline.
      */

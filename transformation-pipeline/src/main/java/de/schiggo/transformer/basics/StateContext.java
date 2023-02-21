@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer.exceptions;
+package de.schiggo.transformer.basics;
 
 
 import lombok.Getter;
@@ -28,7 +28,7 @@ public class StateContext<T> {
 
     /**
      * Checks if the given object is equal to the current one. Can be used to check, if the
-     * {@link de.schiggo.transformer.transformables.DataSource DataSource} element changed (for example after an
+     * {@link DataSource DataSource} element changed (for example after an
      * exception is thrown).
      *
      * @param obj Object for comparison

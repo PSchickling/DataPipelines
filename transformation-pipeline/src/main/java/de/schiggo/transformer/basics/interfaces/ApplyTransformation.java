@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer;
+package de.schiggo.transformer.basics.interfaces;
 
 /**
- * Function consuming an element of a generic type.
+ * Function which performs a transformation from one type to another (or maybe to the same).
  *
- * @param <T> Input type
+ * @param <T> Input/Source Type
+ * @param <S> Output/Target Type
  */
-public interface ApplySink<T> {
-    void apply(T message);
+public interface ApplyTransformation<T, S> {
+    S apply(T input);
 }

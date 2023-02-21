@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer.transformables;
+package de.schiggo.transformer.basics;
 
-import de.schiggo.transformer.*;
+import de.schiggo.transformer.basics.interfaces.ApplyFilter;
+import de.schiggo.transformer.basics.interfaces.ApplySink;
+import de.schiggo.transformer.basics.interfaces.ApplyTransformation;
+import de.schiggo.transformer.basics.interfaces.Transformable;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Iterator;

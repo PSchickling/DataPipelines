@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer;
+package de.schiggo.transformer.basics.interfaces;
 
 /**
  * Function to check weather an element should be filtered or not. If it returns true, then the element should be

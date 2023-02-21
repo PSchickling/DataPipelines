@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer.transformables;
+package de.schiggo.transformer.basics;
 
-import de.schiggo.transformer.*;
-import de.schiggo.transformer.exceptions.StateContext;
+import de.schiggo.transformer.basics.interfaces.ApplyFilter;
+import de.schiggo.transformer.basics.interfaces.ApplySink;
+import de.schiggo.transformer.basics.interfaces.ApplyTransformation;
+import de.schiggo.transformer.basics.interfaces.Transformable;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Iterator;
@@ -67,12 +69,12 @@ public class DataSource<T> implements Transformable<T> {
     }
 
     /**
-     * A {@link StateContext} is only required, if you want to use an {@link de.schiggo.transformer.exceptions.ExceptionHandler ExceptionHandler}).
+     * A {@link StateContext} is only required, if you want to use an {@link ExceptionHandler ExceptionHandler}).
      *
-     * @param stateContext StateContext which will be used in the {@link de.schiggo.transformer.exceptions.ExceptionHandler ExceptionHandler}
+     * @param stateContext StateContext which will be used in the {@link ExceptionHandler ExceptionHandler}
      *                     of the same pipeline.
      * @return this object itself
-     * @see de.schiggo.transformer.exceptions.ExceptionHandler
+     * @see ExceptionHandler
      */
     public DataSource<T> setStateContext(StateContext<T> stateContext) {
         this.stateContext = stateContext;
