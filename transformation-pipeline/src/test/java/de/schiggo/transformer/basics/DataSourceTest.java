@@ -35,7 +35,7 @@ class DataSourceTest {
         List<Integer> l = Arrays.asList(1, 2, 3, 4);
         Iterator<Integer> iter = Arrays.asList(1, 2, 3, 4).iterator();
 
-        Sink<Integer> sink = new DataSource<>(iter).sink(message -> {
+        BasicSink<Integer> sink = new DataSource<>(iter).sink(message -> {
         });
     }
 
@@ -48,11 +48,11 @@ class DataSourceTest {
 
         int i = 0;
         while (iter.hasNext()) {
-            assertThat(uut.hasNext()).isEqualTo(iter.hasNext());
+            assertThat(uut.hasNext()).isEqualTo(true);
             assertThat(uut.next()).isEqualTo(l.get(i));
             i++;
         }
-        assertThat(uut.hasNext()).isFalse().isEqualTo(iter.hasNext());
+        assertThat(uut.hasNext()).isFalse().isEqualTo(false);
     }
 
     @Test
@@ -73,9 +73,7 @@ class DataSourceTest {
         DataSource<Integer> uut = new DataSource<>(iter);
 
         assertThat(uut.hasNext()).isFalse().isEqualTo(iter.hasNext());
-        assertThatThrownBy(() -> {
-            uut.next();
-        }).isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(uut::next).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test

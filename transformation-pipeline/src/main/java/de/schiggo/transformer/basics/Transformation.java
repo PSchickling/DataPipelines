@@ -46,8 +46,8 @@ public class Transformation<T, S> implements Transformable<S> {
     }
 
     @Override
-    public Sink<S> sink(ApplySink<S> result) {
-        return new Sink<>(this, result);
+    public BasicSink<S> sink(ApplySink<S> result) {
+        return new BasicSink<>(this, result);
     }
 
     @Override

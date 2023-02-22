@@ -19,10 +19,10 @@ class FilterTest {
 
         Iterator<Integer> iter2 = l.iterator();
         while (iter2.hasNext()) {
-            assertThat(uut.hasNext()).isEqualTo(iter2.hasNext());
+            assertThat(uut.hasNext()).isEqualTo(true);
             assertThat(uut.next()).isEqualTo(iter2.next());
         }
-        assertThat(uut.hasNext()).isFalse().isEqualTo(iter2.hasNext());
+        assertThat(uut.hasNext()).isFalse().isEqualTo(false);
     }
 
     @Test
@@ -56,9 +56,7 @@ class FilterTest {
         Filter<Integer> uut = new Filter<>(iter, input -> false);
 
         assertThat(uut.hasNext()).isFalse().isEqualTo(iter.hasNext());
-        assertThatThrownBy(() -> {
-            uut.next();
-        }).isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(uut::next).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
@@ -86,7 +84,7 @@ class FilterTest {
         List<Integer> l = Arrays.asList(1, 2, 3, 4);
         Iterator<Integer> iter = Arrays.asList(1, 2, 3, 4).iterator();
 
-        Sink<Integer> sink = new Filter<>(iter, input -> false).sink(message -> {
+        BasicSink<Integer> sink = new Filter<>(iter, input -> false).sink(message -> {
         });
     }
 }

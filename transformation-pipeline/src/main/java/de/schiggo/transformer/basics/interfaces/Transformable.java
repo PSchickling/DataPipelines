@@ -16,7 +16,7 @@
 
 package de.schiggo.transformer.basics.interfaces;
 
-import de.schiggo.transformer.basics.Sink;
+import de.schiggo.transformer.basics.BasicSink;
 
 import java.util.Iterator;
 
@@ -47,11 +47,11 @@ public interface Transformable<T> extends Iterator<T> {
     Transformable<T> filter(ApplyFilter<T> filter);
 
     /**
-     * Create a {@link Sink}, that can consume the elements of the transformable with the given function.
+     * Create a {@link BasicSink}, that can consume the elements of the transformable with the given function.
      *
      * @param result The function of the sink, which consumes each element.
      * @return The sink
      */
-    Sink<T> sink(ApplySink<T> result);
+    BasicSink<T> sink(ApplySink<T> result);
 
 }

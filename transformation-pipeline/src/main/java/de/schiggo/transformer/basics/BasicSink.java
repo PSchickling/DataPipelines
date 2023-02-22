@@ -18,8 +18,9 @@ package de.schiggo.transformer.basics;
 
 import de.schiggo.transformer.basics.interfaces.ApplySink;
 import de.schiggo.transformer.basics.interfaces.ErrorHandler;
+import de.schiggo.transformer.basics.interfaces.Sink;
 import de.schiggo.transformer.basics.interfaces.Transformable;
-import de.schiggo.transformer.exceptions.LastEntryFailureException;
+import de.schiggo.transformer.exceptions.PipelineFailedException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Iterator;
@@ -29,36 +30,25 @@ import java.util.Iterator;
  * through all elements and applies the function (given in the constructor) on it.
  */
 @RequiredArgsConstructor
-public class Sink<T> {
+public class BasicSink<T> implements Sink<T> {
 
     private final Iterator<T> source;
     private final ApplySink<T> sink;
 
-    /**
-     * Executes the whole pipeline.
-     */
+
+    @Override
     public void execute() {
         try {
             while (source.hasNext()) {
                 sink.apply(source.next());
             }
-        } catch (LastEntryFailureException e) {
-            // This doesn't matter
+        } catch (Exception e) {
+            throw new PipelineFailedException("Failure at pipeline execution", e);
         }
     }
 
-    /**
-     * Adds an exception handler before the sink.
-     *
-     * @param stateContext     Context which you have to set in the data source. Allows to follow the state of the source.
-     * @param exceptionHandler Function, which will be applied on elements, which processing failed. Use this function
-     *                         to store failed entries to analyse or retry them later.
-     * @param proceedOnFailure if true, then the pipeline proceed when a failure occured, ese the pipeline throws a
-     *                         {@link de.schiggo.transformer.exceptions.PipelineFailedException PipelineFailedException}
-     * @param <S>              The type of the elements in the data source.
-     * @return Sink with an exception handler on step before in the pipeline.
-     */
+    @Override
     public <S> Sink<T> exceptionHandling(StateContext<S> stateContext, ErrorHandler<S> exceptionHandler, boolean proceedOnFailure) {
-        return new ExceptionHandler<>(source, exceptionHandler, stateContext, proceedOnFailure).sink(sink);
+        return new ExceptionHandler<>(sink, source, exceptionHandler, stateContext, proceedOnFailure);
     }
 }

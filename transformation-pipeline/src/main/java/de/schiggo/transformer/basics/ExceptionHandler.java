@@ -18,6 +18,7 @@ package de.schiggo.transformer.basics;
 
 import de.schiggo.transformer.basics.interfaces.ApplySink;
 import de.schiggo.transformer.basics.interfaces.ErrorHandler;
+import de.schiggo.transformer.basics.interfaces.Sink;
 import de.schiggo.transformer.exceptions.LastEntryFailureException;
 import de.schiggo.transformer.exceptions.PipelineFailedException;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ import java.util.NoSuchElementException;
  * Example:
  * <pre>{@code
  *      StateContext<Long> sc = new StateContext<>();
- *      Sink<PersonReportingEntity> sink = new DataSource<>(...)
+ *      BasicSink<PersonReportingEntity> sink = new DataSource<>(...)
  *          .setStateContext(sc)
  *          .transform(...)
  *          .sink(...)
@@ -39,11 +40,14 @@ import java.util.NoSuchElementException;
  *      sink.execute();
  * }</pre>
  *
- * @param <T> Sink type
+ * @param <T> BasicSink type
  * @param <S> DataSource type
  */
 @RequiredArgsConstructor
-public class ExceptionHandler<T, S> implements Iterator<T> {
+public class ExceptionHandler<T, S> implements Iterator<T>, Sink<T> {
+
+
+    private final ApplySink<T> sink;
 
     private final Iterator<T> source;
 
@@ -54,10 +58,6 @@ public class ExceptionHandler<T, S> implements Iterator<T> {
     private final boolean proceedOnFailure;
 
     private S previous = null;
-
-    public Sink<T> sink(ApplySink<T> result) {
-        return new Sink<>(this, result);
-    }
 
     @Override
     public boolean hasNext() {
@@ -83,9 +83,13 @@ public class ExceptionHandler<T, S> implements Iterator<T> {
             // Store next for next time
             previous = stateContext.getNext();
             return next;
+        } catch (LastEntryFailureException e) {
+            throw e;
         } catch (NoSuchElementException e) {
             // No such element exceptions can be thrown, because it relates to the iterator interface.
             // Should not be thrown, when the user ensures that hasNext() is true before calling next().
+            throw e;
+        } catch (PipelineFailedException e) {
             throw e;
         } catch (Exception e) {
             // Apply exception handling function
@@ -104,6 +108,38 @@ public class ExceptionHandler<T, S> implements Iterator<T> {
             // Cannot proceed because last element failed
             throw new LastEntryFailureException();
         }
+    }
+
+    @Override
+    public void execute() {
+        try {
+            while (hasNext()) {
+                sink.apply(next());
+            }
+            // stop execution immediately
+            return;
+        } catch (LastEntryFailureException e) {
+            // This doesn't matter
+        } catch (PipelineFailedException e) {
+            throw e;
+        } catch (Exception e) {
+            // Apply exception handling function
+            errorHandler.handle(stateContext.getNext(), e);
+
+            // If proceeding with next entry is not possible, then stop
+            if (!proceedOnFailure) {
+                throw new PipelineFailedException("Cannot proceed iteration after next()-failure", e);
+            }
+        }
+
+        // Execution was disturbed, proceed with next pipeline element after failure
+        execute();
+    }
+
+    @Override
+    public <S> Sink<T> exceptionHandling(StateContext<S> stateContext, ErrorHandler<S> exceptionHandler, boolean proceedOnFailure) {
+        // For case an exception occurs while handling an exception LOL
+        return new ExceptionHandler<>(sink, this, exceptionHandler, stateContext, proceedOnFailure);
     }
 
 }

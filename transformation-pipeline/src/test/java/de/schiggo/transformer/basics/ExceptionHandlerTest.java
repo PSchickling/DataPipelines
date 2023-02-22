@@ -1,8 +1,8 @@
 package de.schiggo.transformer.basics;
 
+import de.schiggo.transformer.basics.interfaces.Sink;
 import de.schiggo.transformer.exceptions.PipelineFailedException;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -26,7 +26,7 @@ class ExceptionHandlerTest {
     public static void requirements() {
         // Here we ensure, that the simple pipeline components are working
         // If other pipeline components not work, then we cannot test exception handling
-        Sink<Integer> sink = new DataSource<>(Arrays.asList("1,2,3", "4,6,7", "8,9,0", "11,4,0").iterator())
+        BasicSink<Integer> sink = new DataSource<>(Arrays.asList("1,2,3", "4,6,7", "8,9,0", "11,4,0").iterator())
                 .transform(s -> Integer.valueOf(s.split(",")[0]))
                 .filter(i -> i % 2 == 0)
                 .sink(e -> {
@@ -124,9 +124,7 @@ class ExceptionHandlerTest {
                 .exceptionHandling(sc, (i, e) -> failedStrings.add(i), false);
 
 
-        assertThatThrownBy(() -> {
-            sink.execute();
-        }).isInstanceOf(PipelineFailedException.class);
+        assertThatThrownBy(sink::execute).isInstanceOf(PipelineFailedException.class);
 
         assertThat(failedStrings).hasSize(1);
         assertThat(failedStrings.get(0)).isEqualTo("4,6,7");
@@ -205,9 +203,7 @@ class ExceptionHandlerTest {
                 .exceptionHandling(sc, (i, e) -> failedStrings.add(i), false);
 
 
-        assertThatThrownBy(() -> {
-            sink.execute();
-        }).isInstanceOf(PipelineFailedException.class);
+        assertThatThrownBy(sink::execute).isInstanceOf(PipelineFailedException.class);
 
         assertThat(failedStrings).hasSize(1);
         assertThat(failedStrings.get(0)).isEqualTo("4,6,7");
@@ -265,10 +261,6 @@ class ExceptionHandlerTest {
         assertThat(failedStrings.get(0)).isEqualTo("11,4,0");
     }
 
-    /**
-     * TODO currently not supported
-     */
-    @Disabled
     @Test
     void sinkFailed() {
         List<String> failedStrings = new ArrayList<>();
@@ -293,20 +285,44 @@ class ExceptionHandlerTest {
     }
 
     @Test
+    void sinkFailed_proceedFalse() {
+        List<String> failedStrings = new ArrayList<>();
+
+        StateContext<String> sc = new StateContext<>();
+
+        Sink<Integer> sink = new DataSource<>(Arrays.asList("1,2,3", "4,6,7", "8,9,0", "11,4,0").iterator())
+                .setStateContext(sc)
+                .transform(s -> Integer.valueOf(s.split(",")[0]))
+                .filter(i -> i % 2 == 1)
+                .sink(i -> {
+                    if (i.intValue() == 4) {
+                        throw new RuntimeException("This error should be caught by the ExceptionHandler");
+                    }
+                })
+                .exceptionHandling(sc, (i, e) -> failedStrings.add(i), false);
+
+        assertThatThrownBy(sink::execute).isInstanceOf(PipelineFailedException.class);
+
+        assertThat(failedStrings).hasSize(1);
+        assertThat(failedStrings.get(0)).isEqualTo("4,6,7");
+    }
+
+    @Test
     void iteration() {
         StateContext<String> sc = new StateContext<>();
         List<Integer> l = Arrays.asList(1, 2, 3, 4);
         Iterator<Integer> iter = Arrays.asList(1, 2, 3, 4).iterator();
-        ExceptionHandler uut = new ExceptionHandler<>(iter, (input, e) -> {
+        ExceptionHandler uut = new ExceptionHandler<>(message -> {
+        }, iter, (input, e) -> {
         }, sc, true);
 
         int i = 0;
         while (iter.hasNext()) {
-            assertThat(uut.hasNext()).isEqualTo(iter.hasNext());
+            assertThat(uut.hasNext()).isEqualTo(true);
             assertThat(uut.next()).isEqualTo(l.get(i));
             i++;
         }
-        assertThat(uut.hasNext()).isFalse().isEqualTo(iter.hasNext());
+        assertThat(uut.hasNext()).isFalse().isEqualTo(false);
     }
 
     @Test
@@ -314,7 +330,8 @@ class ExceptionHandlerTest {
         StateContext<String> sc = new StateContext<>();
         List<Integer> l = new ArrayList();
         Iterator<Integer> iter = l.iterator();
-        ExceptionHandler uut = new ExceptionHandler<>(iter, (input, e) -> {
+        ExceptionHandler uut = new ExceptionHandler<>(message -> {
+        }, iter, (input, e) -> {
         }, sc, true);
 
         assertThat(uut.hasNext()).isFalse().isEqualTo(iter.hasNext());
@@ -326,13 +343,164 @@ class ExceptionHandlerTest {
         List<Integer> l = new ArrayList();
         Iterator<Integer> iter = l.iterator();
 
-        ExceptionHandler uut = new ExceptionHandler<>(iter, (input, e) -> {
+        ExceptionHandler uut = new ExceptionHandler<>(message -> {
+        }, iter, (input, e) -> {
         }, sc, true);
 
         assertThat(uut.hasNext()).isFalse().isEqualTo(iter.hasNext());
-        assertThatThrownBy(() -> {
-            uut.next();
-        }).isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(uut::next).isInstanceOf(NoSuchElementException.class);
+    }
+
+    @Test
+    void doubleExceptionHandler_firstProceedFalse() {
+        List<String> failedStrings = new ArrayList<>();
+        List<String> failedStrings2 = new ArrayList<>();
+
+        StateContext<String> sc = new StateContext<>();
+
+        Sink<Integer> sink = new DataSource<>(Arrays.asList("1,2,3", "4,6,7", "8,9,0", "11,4,0").iterator())
+                .setStateContext(sc)
+                .transform(s -> Integer.valueOf(s.split(",")[0]))
+                .filter(i -> i % 2 == 1)
+                .transform(i -> {
+                    if (i.intValue() == 4 || i.intValue() == 8) {
+                        throw new RuntimeException("This error should be caught by the ExceptionHandler");
+                    }
+                    return i;
+                })
+                .sink(e -> {
+                })
+                .exceptionHandling(sc, (i, e) -> failedStrings.add(i), false)
+                .exceptionHandling(sc, (i, e) -> failedStrings2.add(i), true);
+
+        assertThatThrownBy(sink::execute).isInstanceOf(PipelineFailedException.class);
+
+        assertThat(failedStrings).hasSize(1);
+        assertThat(failedStrings.get(0)).isEqualTo("4,6,7");
+        assertThat(failedStrings2).hasSize(0);
+    }
+
+    @Test
+    void doubleExceptionHandler_secondProceedFalse() {
+        List<String> failedStrings = new ArrayList<>();
+        List<String> failedStrings2 = new ArrayList<>();
+
+        StateContext<String> sc = new StateContext<>();
+
+        Sink<Integer> sink = new DataSource<>(Arrays.asList("1,2,3", "4,6,7", "8,9,0", "11,4,0").iterator())
+                .setStateContext(sc)
+                .transform(s -> Integer.valueOf(s.split(",")[0]))
+                .filter(i -> i % 2 == 1)
+                .transform(i -> {
+                    if (i.intValue() == 4 || i.intValue() == 8) {
+                        throw new RuntimeException("This error should be caught by the ExceptionHandler");
+                    }
+                    return i;
+                })
+                .sink(e -> {
+                })
+                .exceptionHandling(sc, (i, e) -> failedStrings.add(i), true)
+                .exceptionHandling(sc, (i, e) -> failedStrings2.add(i), false);
+
+
+        sink.execute();
+
+        assertThat(failedStrings).hasSize(2);
+        assertThat(failedStrings.get(0)).isEqualTo("4,6,7");
+        assertThat(failedStrings.get(1)).isEqualTo("8,9,0");
+        assertThat(failedStrings2).hasSize(0);
+    }
+
+    @Test
+    void doubleExceptionHandler_firstThrowsException_secondProceedFalse() {
+        List<String> failedStrings = new ArrayList<>();
+
+        StateContext<String> sc = new StateContext<>();
+
+        Sink<Integer> sink = new DataSource<>(Arrays.asList("1,2,3", "4,6,7", "8,9,0", "11,4,0").iterator())
+                .setStateContext(sc)
+                .transform(s -> Integer.valueOf(s.split(",")[0]))
+                .filter(i -> i % 2 == 1)
+                .transform(i -> {
+                    if (i.intValue() == 4 || i.intValue() == 8) {
+                        throw new RuntimeException("This error should be caught by the ExceptionHandler");
+                    }
+                    return i;
+                })
+                .sink(e -> {
+                })
+                .exceptionHandling(sc, (i, e) -> {
+                    throw new RuntimeException();
+                }, true)
+                .exceptionHandling(sc, (i, e) -> failedStrings.add(i), false);
+
+
+        assertThatThrownBy(sink::execute).isInstanceOf(PipelineFailedException.class);
+
+        assertThat(failedStrings).hasSize(1);
+        assertThat(failedStrings.get(0)).isEqualTo("4,6,7");
+    }
+
+    @Test
+    void doubleExceptionHandler_firstThrowsException() {
+        List<String> failedStrings = new ArrayList<>();
+
+        StateContext<String> sc = new StateContext<>();
+
+        Sink<Integer> sink = new DataSource<>(Arrays.asList("1,2,3", "4,6,7", "8,9,0", "11,4,0").iterator())
+                .setStateContext(sc)
+                .transform(s -> Integer.valueOf(s.split(",")[0]))
+                .filter(i -> i % 2 == 1)
+                .transform(i -> {
+                    if (i.intValue() == 4 || i.intValue() == 8) {
+                        throw new RuntimeException("This error should be caught by the ExceptionHandler");
+                    }
+                    return i;
+                })
+                .sink(e -> {
+                })
+                .exceptionHandling(sc, (i, e) -> {
+                    throw new RuntimeException();
+                }, true)
+                .exceptionHandling(sc, (i, e) -> failedStrings.add(i), true);
+
+
+        sink.execute();
+
+        assertThat(failedStrings).hasSize(2);
+        assertThat(failedStrings.get(0)).isEqualTo("4,6,7");
+        assertThat(failedStrings.get(1)).isEqualTo("8,9,0");
+    }
+
+    @Test
+    void doubleExceptionHandler_firstThrowsException_firstProceedFalse() {
+        List<String> failedStrings = new ArrayList<>();
+
+        StateContext<String> sc = new StateContext<>();
+
+        Sink<Integer> sink = new DataSource<>(Arrays.asList("1,2,3", "4,6,7", "8,9,0", "11,4,0").iterator())
+                .setStateContext(sc)
+                .transform(s -> Integer.valueOf(s.split(",")[0]))
+                .filter(i -> i % 2 == 1)
+                .transform(i -> {
+                    if (i.intValue() == 4 || i.intValue() == 8) {
+                        throw new RuntimeException("This error should be caught by the ExceptionHandler");
+                    }
+                    return i;
+                })
+                .sink(e -> {
+                })
+                .exceptionHandling(sc, (i, e) -> {
+                    throw new RuntimeException();
+                }, false)
+                .exceptionHandling(sc, (i, e) -> failedStrings.add(i), true);
+
+
+        sink.execute();
+
+        assertThat(failedStrings).hasSize(2);
+        assertThat(failedStrings.get(0)).isEqualTo("4,6,7");
+        assertThat(failedStrings.get(1)).isEqualTo("8,9,0");
     }
 
 }

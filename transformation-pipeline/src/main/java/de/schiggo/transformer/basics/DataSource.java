@@ -50,8 +50,8 @@ public class DataSource<T> implements Transformable<T> {
     }
 
     @Override
-    public Sink<T> sink(ApplySink<T> result) {
-        return new Sink<>(this, result);
+    public BasicSink<T> sink(ApplySink<T> result) {
+        return new BasicSink<>(this, result);
     }
 
     @Override
