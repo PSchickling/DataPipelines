@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="3" author="Paul Schickling">
+
+        <createTable tableName="t_pipelinegroup">
+            <column name="pipelinegroupid" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PipelineGroup"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(1000)"/>
+            <column name="classname" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="t_pipelinegroupattributetype">
+            <column name="pipelinegroupattributetypeid" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PipelineGroupAttributeType"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(1000)"/>
+            <column name="classname" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="t_pipelinegroupattribute">
+            <column name="pipelinegroupattributeid" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PipelineGroupAttribute"/>
+            </column>
+            <column name="pipelinegroupid" type="BIGINT">
+                <constraints referencedTableName="t_pipelinegroup" referencedColumnNames="pipelinegroupid"
+                             foreignKeyName="FK_PipelineGroupAttribute_PipelineGroup"/>
+            </column>
+            <column name="pipelinegroupattributetypeid" type="BIGINT">
+                <constraints referencedTableName="t_pipelinegroupattributetype"
+                             referencedColumnNames="pipelinegroupattributetypeid"
+                             foreignKeyName="FK_PipelineGroupAttribute_PipelineGroupAttributeType"/>
+            </column>
+            <column name="attribute" type="varchar(5000)"/>
+        </createTable>
+
+        <createTable tableName="t_pipeline">
+            <column name="pipelineid" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_Pipeline"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(1000)"/>
+            <column name="classname" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pipelinegroupid" type="BIGINT">
+                <constraints referencedTableName="t_pipelinegroup" referencedColumnNames="pipelinegroupid"
+                             foreignKeyName="FK_Pipeline_PipelineGroup"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="t_pipelineattributetype">
+            <column name="pipelineattributetypeid" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PipelineAttributeType"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(1000)"/>
+            <column name="classname" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="t_pipelineattribute">
+            <column name="pipelineattributeid" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PipelineAttribute"/>
+            </column>
+            <column name="pipelineid" type="BIGINT">
+                <constraints referencedTableName="t_pipeline" referencedColumnNames="pipelineid"
+                             foreignKeyName="FK_PipelineAttribute_Pipeline"/>
+            </column>
+            <column name="pipelineattributetypeid" type="BIGINT">
+                <constraints referencedTableName="t_pipelineattributetype"
+                             referencedColumnNames="pipelineattributetypeid"
+                             foreignKeyName="FK_PipelineAttribute_PipelineAttributeType"/>
+            </column>
+            <column name="attribute" type="varchar(5000)"/>
+        </createTable>
+
+        <createTable tableName="t_pipelinepipelinetype">
+            <column name="pipelinepipelinetypeid" type="BIGINT" autoIncrement="false">
+                <constraints primaryKey="true" primaryKeyName="PK_PipelinePipelineType"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(1000)"/>
+        </createTable>
+
+        <insert tableName="t_pipelinepipelinetype">
+            <column name="pipelinepipelinetypeid">1</column>
+            <column name="name">Required finish</column>
+            <column name="description"></column>
+        </insert>
+
+        <createTable tableName="t_pipelinepipeline">
+            <column name="pipelinepipelineid" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PipelinePipeline"/>
+            </column>
+            <column name="frompipelineid" type="BIGINT">
+                <constraints referencedTableName="t_pipeline" referencedColumnNames="pipelineid"
+                             foreignKeyName="FK_PipelinePipeline_Pipeline_From"/>
+            </column>
+            <column name="pipelinepipelinetypeid" type="BIGINT">
+                <constraints referencedTableName="t_pipelinepipelinetype" referencedColumnNames="pipelinepipelinetypeid"
+                             foreignKeyName="FK_PipelinePipeline_PipelinePipelineType"/>
+            </column>
+            <column name="topipelineid" type="BIGINT">
+                <constraints referencedTableName="t_pipeline" referencedColumnNames="pipelineid"
+                             foreignKeyName="FK_PipelinePipeline_Pipeline_To"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="t_executionstate">
+            <column name="executionstateid" type="BIGINT" autoIncrement="false">
+                <constraints primaryKey="true" primaryKeyName="PK_ExecutionState"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(1000)"/>
+        </createTable>
+
+        <insert tableName="t_executionstate">
+            <column name="executionstateid">1</column>
+            <column name="name">Waiting</column>
+            <column name="description"></column>
+        </insert>
+
+        <insert tableName="t_executionstate">
+            <column name="executionstateid">2</column>
+            <column name="name">Running</column>
+            <column name="description"></column>
+        </insert>
+
+        <insert tableName="t_executionstate">
+            <column name="executionstateid">3</column>
+            <column name="name">Paused</column>
+            <column name="description"></column>
+        </insert>
+
+        <insert tableName="t_executionstate">
+            <column name="executionstateid">4</column>
+            <column name="name">Completed</column>
+            <column name="description"></column>
+        </insert>
+
+        <insert tableName="t_executionstate">
+            <column name="executionstateid">5</column>
+            <column name="name">Failed</column>
+            <column name="description"></column>
+        </insert>
+
+        <createTable tableName="t_process">
+            <column name="processid" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_Process"/>
+            </column>
+            <column name="executionstateid" type="BIGINT">
+                <constraints referencedTableName="t_executionstate" referencedColumnNames="executionstateid"
+                             foreignKeyName="FK_Process_ExecutionState"/>
+            </column>
+            <column name="pipelinegroupid" type="BIGINT">
+                <constraints referencedTableName="t_pipelinegroup" referencedColumnNames="pipelinegroupid"
+                             foreignKeyName="FK_Process_PipelineGroup"/>
+            </column>
+            <column name="processdata" type="VARCHAR(5000)"/>
+        </createTable>
+
+        <createTable tableName="t_pipelineexecution">
+            <column name="pipelineexecutionid" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PipelineExecution"/>
+            </column>
+            <column name="pipelineid" type="BIGINT">
+                <constraints referencedTableName="t_pipeline" referencedColumnNames="pipelineid"
+                             foreignKeyName="FK_PipelineExecution_Pipeline"/>
+            </column>
+            <column name="executionstateid" type="BIGINT">
+                <constraints referencedTableName="t_executionstate" referencedColumnNames="executionstateid"
+                             foreignKeyName="FK_PipelineExecution_ExecutionState"/>
+            </column>
+            <column name="start" type="DATETIME"/>
+            <column name="finish" type="DATETIME"/>
+            <column name="triggerprocessid" type="BIGINT">
+                <constraints referencedTableName="t_process" referencedColumnNames="processid"
+                             foreignKeyName="FK_PipelineExecution_Process"/>
+            </column>
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>

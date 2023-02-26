@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+de.schiggo.transformer.pipelinemanagement.autoconfiguration.PipelineManagementAutoConfiguration,\
+de.schiggo.transformer.pipelinemanagement.autoconfiguration.PipelineManagementDefaultConfiguration

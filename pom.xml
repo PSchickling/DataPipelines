@@ -25,9 +25,12 @@
 
         <!-- Main modules -->
         <module>transformation-pipeline</module>
+        <module>pipeline-management</module>
+        <module>pipeline-spring-boot-starter</module>
 
         <!-- demos -->
         <module>demo/demo-service-next</module>
+        <module>demo/demo-service-managed</module>
     </modules>
 
     <properties>
@@ -52,6 +55,16 @@
             <dependency>
                 <groupId>de.schiggo.transformation</groupId>
                 <artifactId>transformation-pipeline</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>de.schiggo.transformation</groupId>
+                <artifactId>pipeline-management</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>de.schiggo.transformation</groupId>
+                <artifactId>pipeline-spring-boot-starter</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 

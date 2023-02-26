@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer.app.persistence.source.enity;
+package de.schiggo.transformer.app.persistence.source.entity;
 
 import de.schiggo.transformer.app.persistence.source.versioning.VersionedEntity;
 import lombok.Data;

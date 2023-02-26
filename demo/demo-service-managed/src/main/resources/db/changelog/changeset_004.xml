@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="4" author="Paul Schickling">
+
+        <insert tableName="t_pipelinegroup">
+            <column name="name">group1</column>
+            <column name="classname">group1</column>
+        </insert>
+
+        <insert tableName="t_pipeline">
+            <column name="name">pipeline1</column>
+            <column name="classname">pipeline1</column>
+            <column name="pipelinegroupid">1</column>
+        </insert>
+        <insert tableName="t_pipeline">
+            <column name="name">pipeline2</column>
+            <column name="classname">pipeline2</column>
+            <column name="pipelinegroupid">1</column>
+        </insert>
+
+        <insert tableName="t_pipelinepipeline">
+            <column name="frompipelineid">1</column>
+            <column name="pipelinepipelinetypeid">1</column>
+            <column name="topipelineid">2</column>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>

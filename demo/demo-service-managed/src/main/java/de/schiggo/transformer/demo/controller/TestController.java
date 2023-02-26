@@ -14,32 +14,31 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer.app.controller;
+package de.schiggo.transformer.demo.controller;
 
-import de.schiggo.transformer.app.persistence.target.entity.PersonReportingEntity;
-import de.schiggo.transformer.app.persistence.target.repo.PersonReportingRepository;
-import de.schiggo.transformer.app.pipeline.SimplePersonPipeline;
+import de.schiggo.transformer.pipelinemanagement.service.PipelineManagerServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Calendar;
 
 @RestController
 @RequestMapping("/api/test")
 @RequiredArgsConstructor
 public class TestController {
 
-    final SimplePersonPipeline personPipeline;
+    final PipelineManagerServiceImpl pipelineManagerService;
 
-    final PersonReportingRepository personReportingRepository;
+    @GetMapping(path = "/1")
+    public String test1() {
+        pipelineManagerService.triggerGroup("group1");
+        return "ok";
+    }
 
-    @GetMapping
-    public Iterable<PersonReportingEntity> test() {
-        Calendar now = Calendar.getInstance();
-        personPipeline.execute(now);
-        return personReportingRepository.findAll();
+    @GetMapping(path = "/2")
+    public String test2() {
+        pipelineManagerService.executePipeline();
+        return "ok";
     }
 
 }

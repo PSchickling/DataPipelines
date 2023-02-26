@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="1" author="Paul Schickling">
+
+        <insert tableName="T_Person">
+            <column name="MainId" value="1"/>
+            <column name="FirstName" value="Max"/>
+            <column name="LastName" value="Mustermann"/>
+            <column name="DayOfBirth" valueDate="1990-03-23"/>
+            <column name="ValidFrom" valueDate="2020-01-01"/>
+        </insert>
+
+        <insert tableName="T_Address">
+            <column name="MainId" value="1"/>
+            <column name="MainPersonId" value="1"/>
+            <column name="Street" value="Schlossstraße"/>
+            <column name="StreetNumber" value="1"/>
+            <column name="ZipCode" value="60343"/>
+            <column name="City" value="Frankfurt"/>
+            <column name="CountryCode" value="DE"/>
+            <column name="ValidFrom" valueDate="2020-01-01"/>
+        </insert>
+
+        <insert tableName="T_Address">
+            <column name="MainId" value="1"/>
+            <column name="MainPersonId" value="1"/>
+            <column name="Street" value="Castlestreet"/>
+            <column name="StreetNumber" value="2"/>
+            <column name="ZipCode" value="00000"/>
+            <column name="City" value="London"/>
+            <column name="CountryCode" value="EN"/>
+            <column name="ValidFrom" valueDate="2023-01-01"/>
+        </insert>
+
+        <insert tableName="T_Person">
+            <column name="MainId" value="2"/>
+            <column name="FirstName" value="Maxi"/>
+            <column name="LastName" value="Mal"/>
+            <column name="DayOfBirth" valueDate="1990-07-20"/>
+            <column name="ValidFrom" valueDate="2020-01-01"/>
+        </insert>
+
+        <insert tableName="T_Person">
+            <column name="MainId" value="2"/>
+            <column name="FirstName" value="Maxi"/>
+            <column name="LastName" value="Mal"/>
+            <column name="DayOfBirth" valueDate="1991-07-20"/>
+            <column name="ValidFrom" valueDate="2021-01-01"/>
+        </insert>
+
+        <insert tableName="T_Person">
+            <column name="MainId" value="2"/>
+            <column name="FirstName" value="Maxi"/>
+            <column name="LastName" value="Mal-Happy"/>
+            <column name="DayOfBirth" valueDate="1991-07-20"/>
+            <column name="ValidFrom" valueDate="2022-02-01"/>
+        </insert>
+
+        <insert tableName="T_Address">
+            <column name="MainId" value="2"/>
+            <column name="MainPersonId" value="2"/>
+            <column name="Street" value="Burgstraße"/>
+            <column name="StreetNumber" value="3020a"/>
+            <column name="ZipCode" value="60343"/>
+            <column name="City" value="Frankfurt"/>
+            <column name="CountryCode" value="DE"/>
+            <column name="ValidFrom" valueDate="2020-01-01"/>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>

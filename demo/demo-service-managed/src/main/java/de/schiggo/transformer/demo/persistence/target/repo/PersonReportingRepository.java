@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer.app.persistence.target.repo;
+package de.schiggo.transformer.demo.persistence.target.repo;
 
-import de.schiggo.transformer.app.persistence.target.entity.PersonReportingEntity;
+import de.schiggo.transformer.demo.persistence.target.entity.PersonReportingEntity;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

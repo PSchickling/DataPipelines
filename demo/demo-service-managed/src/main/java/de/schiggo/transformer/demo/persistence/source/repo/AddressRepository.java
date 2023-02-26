@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer.app.persistence.source.repo;
+package de.schiggo.transformer.demo.persistence.source.repo;
 
-import de.schiggo.transformer.app.persistence.source.entity.AddressEntity;
+import de.schiggo.transformer.demo.persistence.source.entity.AddressEntity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 

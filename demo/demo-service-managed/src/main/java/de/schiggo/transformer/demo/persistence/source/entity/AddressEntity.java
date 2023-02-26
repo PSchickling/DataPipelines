@@ -14,35 +14,34 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer.app.persistence.target.enity;
+package de.schiggo.transformer.demo.persistence.source.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import de.schiggo.transformer.demo.persistence.source.versioning.VersionedEntity;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-@Entity(name = "d_personreporting")
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PersonReportingEntity {
+@Entity(name = "T_Address")
+public class AddressEntity extends VersionedEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "addressid")
+    private Long addressId;
 
-    @Column(name = "mainpersonid")
-    private Long mainPersonId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mainpersonid")
+    @ToString.Exclude
+    private PersonEntity person;
 
-    @Column(name = "mainaddressid")
-    private Long mainAddressId;
+    @Column(name = "street")
+    private String street;
 
-    @Column(name = "age")
-    private Integer age;
+    @Column(name = "streetnumber")
+    private String streetNumber;
 
     @Column(name = "zipcode")
     private String zipCode;
@@ -50,12 +49,7 @@ public class PersonReportingEntity {
     @Column(name = "city")
     private String city;
 
-    @Column(name = "current")
-    @Builder.Default
-    private Boolean current = false;
-
-    @Column(name = "next")
-    @Builder.Default
-    private Boolean next = true;
+    @Column(name = "countrycode")
+    private String countryCode;
 
 }

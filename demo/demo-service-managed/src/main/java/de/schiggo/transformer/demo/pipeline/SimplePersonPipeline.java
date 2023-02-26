@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package de.schiggo.transformer.app.pipeline;
+package de.schiggo.transformer.demo.pipeline;
 
-import de.schiggo.transformer.app.persistence.source.entity.AddressEntity;
-import de.schiggo.transformer.app.persistence.source.entity.PersonEntity;
-import de.schiggo.transformer.app.persistence.source.repo.AddressRepository;
-import de.schiggo.transformer.app.persistence.source.repo.PersonRepository;
-import de.schiggo.transformer.app.persistence.target.entity.PersonReportingEntity;
-import de.schiggo.transformer.app.persistence.target.repo.PersonReportingRepository;
 import de.schiggo.transformer.basics.DataSource;
 import de.schiggo.transformer.basics.StateContext;
 import de.schiggo.transformer.basics.interfaces.Sink;
+import de.schiggo.transformer.demo.persistence.source.entity.AddressEntity;
+import de.schiggo.transformer.demo.persistence.source.entity.PersonEntity;
+import de.schiggo.transformer.demo.persistence.source.repo.AddressRepository;
+import de.schiggo.transformer.demo.persistence.source.repo.PersonRepository;
+import de.schiggo.transformer.demo.persistence.target.entity.PersonReportingEntity;
+import de.schiggo.transformer.demo.persistence.target.repo.PersonReportingRepository;
+import de.schiggo.transformer.pipelinemanagement.service.extern.PipelineExecutor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
-import javax.transaction.Transactional;
 import java.util.Calendar;
 import java.util.Optional;
 
@@ -49,11 +48,9 @@ import java.util.Optional;
  *
  * @author Paul Schickling
  */
-@Component
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
-public class SimplePersonPipeline {
+public class SimplePersonPipeline implements PipelineExecutor {
 
     // Source repositories
     private final PersonRepository personRepository;
@@ -63,13 +60,12 @@ public class SimplePersonPipeline {
     private final PersonReportingRepository personReportingRepository;
 
     // TODO fails for concurrency. Pass it to every function as argument to solve this
-    private Calendar validAt = null;
+    private final Calendar validAt;
 
     /**
      * Executes the whole pipeline.
      */
-    public void execute(Calendar validAt) {
-        this.validAt = validAt;
+    public void execute() {
 
         // StateContext only necessary for ExceptionHandling
         StateContext<Long> sc = new StateContext<>();
