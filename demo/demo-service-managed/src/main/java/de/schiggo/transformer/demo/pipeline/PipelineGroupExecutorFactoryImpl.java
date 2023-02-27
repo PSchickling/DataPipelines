@@ -10,12 +10,8 @@ import java.util.Optional;
 @Component
 public class PipelineGroupExecutorFactoryImpl implements PipelineGroupExecutorFactory {
 
-    /*public PipelineGroupExecutorFactoryImpl(PipelineManagerServiceImpl pipelineManagerService){
-        pipelineManagerService.addPipelineGroup("group1", "", "", new HashMap<>());
-    }*/
-
     @Override
-    public Optional<PipelineGroupExecutor> fromName(String name) {
+    public Optional<PipelineGroupExecutor> fromClassName(String className) {
         return Optional.of(new PipelineGroupExecutor() {
             @Override
             public String generateExecutionData(Map<Long, String> groupAttributes) {

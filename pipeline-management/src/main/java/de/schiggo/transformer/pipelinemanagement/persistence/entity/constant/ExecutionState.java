@@ -1,17 +1,37 @@
+/*
+ * Copyright 2023 Paul Schickling
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.schiggo.transformer.pipelinemanagement.persistence.entity.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Represents possible states of {@link de.schiggo.transformer.pipelinemanagement.persistence.entity.PipelineExecution PipelineExecutions}
+ * and {@link de.schiggo.transformer.pipelinemanagement.persistence.entity.Process Processes}.
+ */
 @Getter
 @AllArgsConstructor
 public enum ExecutionState {
 
-    WAITING(1, ""),
-    RUNNING(2, ""),
-    PAUSED(3, ""),
-    COMPLETED(4, ""),
-    FAILED(5, "");
+    WAITING(1, "Waiting"),
+    RUNNING(2, "Running"),
+    PAUSED(3, "Paused"),
+    COMPLETED(4, "Completed"),
+    FAILED(5, "Failed");
 
     private final long id;
     private final String name;
